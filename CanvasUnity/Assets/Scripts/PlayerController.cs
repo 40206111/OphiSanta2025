@@ -113,6 +113,8 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         var pos = eventPos;
         pos = Camera.main.ScreenToWorldPoint(pos);
         pos.y = DropLine.position.y;
+        var offset = Random.Range(-0.001f, 0.001f);
+        pos.x += offset;
         pos.x = Mathf.Clamp(pos.x, LeftLine.position.x + LeftLine.localScale.x, RightLine.position.x - LeftLine.localScale.x);
         return pos;
     }

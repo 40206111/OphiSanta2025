@@ -278,7 +278,7 @@ MonoBehaviour:
   DropLine: {fileID: 1736239557}
   RightLine: {fileID: 1209849103}
   LeftLine: {fileID: 1496640212}
-  Cooldown: 0.5
+  Cooldown: 0.3
 --- !u!1 &311755785
 GameObject:
   m_ObjectHideFlags: 0
