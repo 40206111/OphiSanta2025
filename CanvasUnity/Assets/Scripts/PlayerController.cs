@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,19 +8,63 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     [SerializeField] Transform DropLine;
     [SerializeField] Transform RightLine;
     [SerializeField] Transform LeftLine;
+    [SerializeField] float Cooldown = 0.2f;
 
     Paintball myBall;
+    float _timeSinceFired;
+    bool Ready => _timeSinceFired >= Cooldown && GameRunning;
+    bool GameRunning = false;
+
+    private void Awake()
+    {
+        GameController.Instance.GameLost += OnLoss;
+        GameController.Instance.GameStarted += OnStart;
+    }
+
+    private void Update()
+    {
+        if (!Ready)
+        {
+            _timeSinceFired += Time.deltaTime;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameController.Instance.GameLost -= OnLoss;
+        GameController.Instance.GameStarted -= OnStart;
+    }
+
+    public void OnLoss()
+    {
+        GameRunning = false;
+        myBall = null;
+    }
+    public void OnStart()
+    {
+        GameRunning = true;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (myBall == null)
+        if (GameController.Instance.GameState == eGameState.PreStart)
+        {
+            GameController.Instance.ChangeState(eGameState.Running);
+        }
+
+        if (Ready && myBall == null)
         {
             myBall = Instantiate(paintBallPrefab, GetWorldPoint(eventData.position), Quaternion.identity);
         }
     }
     public void OnPointerUp(PointerEventData eventData)
     {
-        myBall.FirePaintBall();
+        if (myBall == null)
+        {
+            return;
+        }
+        _timeSinceFired = 0;
+        myBall.FirePaintBall(DropLine.position.y);
         myBall = null;
     }
     public void OnPointerMove(PointerEventData eventData)
