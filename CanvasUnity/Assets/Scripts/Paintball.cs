@@ -56,6 +56,25 @@ public class Paintball : MonoBehaviour
         _failLine = failLine;
     }
 
+    public void ResetBall()
+    {
+        gameObject.SetActive(false);
+        _fired = false;
+        Consumed = false;
+        Tier = 0;
+        transform.localScale = Vector3.one;
+        transform.localScale *= 0.5f;
+        _restTime = 0;
+
+        GameController.Instance.PooledBalls.Add(this);
+    }
+
+    public void RemoveBall()
+    {
+        ResetBall();
+        GameController.Instance.ActiveBalls.Remove(this);
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!_fired || Consumed)
@@ -70,7 +89,27 @@ public class Paintball : MonoBehaviour
                 return;
             }
             paintBall.Consumed = true;
-            GameObject.Destroy(paintBall.gameObject);
+            paintBall.RemoveBall();
+            Tier++;
+            transform.localScale *= 1.5f;
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!_fired || Consumed)
+        {
+            return;
+        }
+
+        if (collision.gameObject.TryGetComponent<Paintball>(out var paintBall))
+        {
+            if (paintBall.Tier != Tier)
+            {
+                return;
+            }
+            paintBall.Consumed = true;
+            paintBall.RemoveBall();
             Tier++;
             transform.localScale *= 1.5f;
         }

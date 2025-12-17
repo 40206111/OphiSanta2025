@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,6 +21,7 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         GameController.Instance.GameLost += OnLoss;
         GameController.Instance.GameStarted += OnStart;
+        GameController.Instance.Restart += OnRestart;
     }
 
     private void Update()
@@ -33,6 +36,7 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         GameController.Instance.GameLost -= OnLoss;
         GameController.Instance.GameStarted -= OnStart;
+        GameController.Instance.Restart -= OnRestart;
     }
 
     public void OnLoss()
@@ -45,16 +49,43 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         GameRunning = true;
     }
 
+    public void OnRestart()
+    {
+        foreach ( var paintball in GameController.Instance.ActiveBalls )
+        {
+            paintball.ResetBall();
+        }
+
+        GameController.Instance.ActiveBalls.Clear();
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if (GameController.Instance.GameState == eGameState.PreStart)
         {
             GameController.Instance.ChangeState(eGameState.Running);
+            return;
+        }
+        if (GameController.Instance.GameState == eGameState.Lost)
+        {
+            GameController.Instance.ChangeState(eGameState.PreStart);
+            return;
         }
 
         if (Ready && myBall == null)
         {
-            myBall = Instantiate(paintBallPrefab, GetWorldPoint(eventData.position), Quaternion.identity);
+            if (GameController.Instance.PooledBalls.Count == 0)
+            {
+                myBall = Instantiate(paintBallPrefab);
+            }
+            else
+            {
+                myBall = GameController.Instance.PooledBalls.Last();
+                GameController.Instance.PooledBalls.RemoveAt(GameController.Instance.PooledBalls.Count - 1);
+            }
+            myBall.gameObject.SetActive(true);
+            myBall.transform.position = GetWorldPoint(eventData.position);
+            GameController.Instance.ActiveBalls.Add(myBall);
         }
     }
     public void OnPointerUp(PointerEventData eventData)

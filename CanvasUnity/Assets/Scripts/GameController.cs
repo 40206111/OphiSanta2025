@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 
 public enum eGameState
 {
@@ -30,6 +31,9 @@ public class GameController
     public Action Restart;
     public Action GameStarted;
     public Action GameLost;
+
+    public List<Paintball> ActiveBalls = new List<Paintball>();
+    public List<Paintball> PooledBalls = new List<Paintball>();
 
     public void ChangeState(eGameState newState)
     {
