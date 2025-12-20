@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class Paintball : MonoBehaviour
 {
-    [SerializeField] private float startingScale = 0.5f;
+    const string SplatTrigger = "Splat";
+    const string ResetTrigger = "Reset";
+
     [SerializeField] private float timeOutTime = 0.5f;
     [SerializeField] private float scaleFactor = 1.25f;
+    private Animator _animator;
     private Rigidbody2D _rigidbody;
 
     public bool Consumed;
@@ -21,7 +24,7 @@ public class Paintball : MonoBehaviour
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
-        transform.localScale *= startingScale;
+        _animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -55,6 +58,7 @@ public class Paintball : MonoBehaviour
 
     public void FirePaintBall(float failLine)
     {
+        _animator.ResetTrigger(ResetTrigger);
         _rigidbody.simulated = true;
         _fired = true;
         _failLine = failLine;
@@ -68,8 +72,9 @@ public class Paintball : MonoBehaviour
         Tier = 0;
         _rigidbody.simulated = false;
         transform.localScale = Vector3.one;
-        transform.localScale *= startingScale;
         _restTime = 0;
+        _animator.ResetTrigger(SplatTrigger);
+        _animator.SetTrigger(ResetTrigger);
 
         GameController.Instance.PooledBalls.Add(this);
     }
@@ -78,6 +83,11 @@ public class Paintball : MonoBehaviour
     {
         ResetBall();
         GameController.Instance.ActiveBalls.Remove(this);
+    }
+
+    public void Splat()
+    {
+        _animator.SetTrigger(SplatTrigger);
     }
 
     private void OnCollisionStay2D(Collision2D collision)

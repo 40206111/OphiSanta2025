@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         GameRunning = false;
         myBall = null;
+        GameController.Instance.SplatBalls();
     }
     public void OnStart()
     {

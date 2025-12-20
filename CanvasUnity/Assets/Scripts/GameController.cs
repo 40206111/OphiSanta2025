@@ -57,4 +57,11 @@ public class GameController
         GameState = newState;
     }
 
+    public void SplatBalls()
+    {
+        foreach (var ball in ActiveBalls)
+        {
+            ball.Splat();
+        }
+    }
 }
