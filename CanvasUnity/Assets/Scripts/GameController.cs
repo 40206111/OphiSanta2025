@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public enum eGameState
 {
@@ -23,12 +25,16 @@ public class GameController
         private set { }
     }
 
+    const int MaxScores = 10;
 
     public eGameState GameState = eGameState.PreStart;
 
     public Action Restart;
     public Action GameStarted;
     public Action GameLost;
+
+    public List<int> HighScores = new List<int>();
+    public int CurrentScore;
 
     public void ChangeState(eGameState newState)
     {
@@ -40,15 +46,43 @@ public class GameController
         switch (newState)
         {
             case eGameState.PreStart:
+                CurrentScore = 0;
                 Restart?.Invoke();
                 break;
             case eGameState.Running:
                 GameStarted?.Invoke();
                 break;
             case eGameState.Lost:
+                CheckScores();
                 GameLost?.Invoke();
                 break;
         }
         GameState = newState;
+    }
+
+    private void CheckScores()
+    {
+        HighScores.Sort();
+        HighScores.Reverse();
+
+        if (HighScores.Count < MaxScores || CurrentScore > HighScores.Last())
+        {
+            var scoreToMove = CurrentScore;
+            for (int i = 0; i < HighScores.Count; i++)
+            {
+                var score = HighScores[i];
+                if (scoreToMove > score)
+                {
+                    var temp = scoreToMove;
+                    scoreToMove = score;
+                    HighScores[i] = temp;
+                }
+            }
+
+            if (HighScores.Count < MaxScores)
+            {
+                HighScores.Add(scoreToMove);
+            }
+        }
     }
 }

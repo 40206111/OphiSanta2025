@@ -135,6 +135,7 @@ public class Paintball : MonoBehaviour
             paintBall.Consumed = true;
             paintBall.RemoveBall();
             Tier++;
+            GameController.Instance.CurrentScore += Tier * Tier;
         }
     }
 
