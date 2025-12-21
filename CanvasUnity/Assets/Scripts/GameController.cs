@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public enum eGameState
 {
@@ -23,6 +24,11 @@ public class GameController
             return _instance;
         }
         private set { }
+    }
+
+    private GameController()
+    {
+        LoadHighScores();
     }
 
     const int MaxScores = 10;
@@ -82,6 +88,28 @@ public class GameController
             if (HighScores.Count < MaxScores)
             {
                 HighScores.Add(scoreToMove);
+            }
+        }
+
+        SaveHighScores();
+    }
+
+    private void SaveHighScores()
+    {
+        for (int i = 0; i < HighScores.Count; i++)
+        {
+            PlayerPrefs.SetInt($"score_{i}", HighScores[i]);
+        }
+    }
+
+    private void LoadHighScores()
+    {
+        for (int i = 0; i < MaxScores; i++)
+        {
+            var score = PlayerPrefs.GetInt($"score_{i}");
+            if (score != 0)
+            {
+                HighScores.Add(score);
             }
         }
     }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -13,6 +14,8 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     bool Ready => !_trackingBall && GameRunning;
     bool _trackingBall = false;
     bool GameRunning = false;
+
+    bool _pointerDown = false;
 
     Vector3 trackPoint;
 
@@ -53,6 +56,7 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
         if (Ready && myBall == null)
         {
+            _pointerDown = true;
             myBall = PaintballManager.Instance.GetNextBall();
             StartCoroutine(TrackBallToPoint( GetWorldPoint(eventData.position)));
         }
@@ -66,15 +70,15 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         trackPoint = point;
         _trackingBall = true;
         point.z = myBall.transform.position.z;
-        while (myBall != null && (myBall.transform.position - point).sqrMagnitude > 0.01f)
+        while (myBall != null && (myBall.transform.position - trackPoint).sqrMagnitude > 0.01f)
         {
-            myBall.transform.position = Vector3.Lerp(myBall.transform.position, point, Time.deltaTime * SpeedToTop);
+            myBall.transform.position = Vector3.Lerp(myBall.transform.position, trackPoint, Time.deltaTime * SpeedToTop);
             yield return null;
         }
 
         if (myBall != null)
         {
-            myBall.transform.position = point;
+            myBall.transform.position = trackPoint;
         }
         _trackingBall = false;
     }
@@ -85,6 +89,7 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         {
             return;
         }
+        _pointerDown = false;
         StartCoroutine(FireBall());
     }
 
@@ -92,6 +97,10 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         while (_trackingBall)
         {
+            if (_pointerDown)
+            {
+                yield break;
+            }
             yield return null;
         }
         if (myBall == null)
@@ -104,8 +113,14 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     public void OnPointerMove(PointerEventData eventData)
     {
-        if (!Ready || myBall == null)
+        if (myBall == null)
         {
+            return;
+        }
+
+        if (_trackingBall)
+        {
+            trackPoint = GetWorldPoint(eventData.position);
             return;
         }
 
