@@ -8,12 +8,14 @@ public class Paintball : MonoBehaviour
 
     [SerializeField] private float timeOutTime = 0.5f;
     [SerializeField] private float scaleFactor = 1.25f;
+    [SerializeField] private float trackTargetSpeed = 2f;
     private Animator _animator;
     private Rigidbody2D _rigidbody;
     private CircleCollider2D _collider;
     private SpriteRenderer _spriteRenderer;
 
-    public bool Consumed;
+    [HideInInspector] public bool Consumed;
+    [HideInInspector] public Transform Target;
 
     bool _fired;
 
@@ -43,6 +45,12 @@ public class Paintball : MonoBehaviour
 
     private void Update()
     {
+        if (Target != null)
+        {
+            transform.position = Vector3.Slerp(transform.position, Target.position, Time.deltaTime * trackTargetSpeed);
+            return;
+        }
+
         if (!_fired)
         {
             return;
@@ -70,7 +78,6 @@ public class Paintball : MonoBehaviour
             _restTime = 0;
         }
     }
-
 
     public void FirePaintBall(float failLine)
     {

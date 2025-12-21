@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -361,6 +361,7 @@ MonoBehaviour:
   - {fileID: 1100385218}
   - {fileID: 1973884954}
   - {fileID: 1494745258}
+  - {fileID: 1652965722}
 --- !u!1 &275701404
 GameObject:
   m_ObjectHideFlags: 0
@@ -476,11 +477,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594e38030ee84fe468f600b249051105, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  paintBallPrefab: {fileID: 6102387510640676862, guid: 7f62fd8ab9be74f4988fe5f9d2f07c62, type: 3}
   DropLine: {fileID: 1736239557}
   RightLine: {fileID: 1209849103}
   LeftLine: {fileID: 1496640212}
-  Cooldown: 0.3
+  SpeedToTop: 50
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -977,7 +977,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1096,6 +1096,7 @@ Transform:
   - {fileID: 1100385218}
   - {fileID: 1973884954}
   - {fileID: 1494745258}
+  - {fileID: 1652965722}
   m_Father: {fileID: 231557109}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1045096517
@@ -1723,8 +1724,6 @@ GameObject:
   - component: {fileID: 1465023426}
   - component: {fileID: 1465023425}
   - component: {fileID: 1465023424}
-  - component: {fileID: 1465023423}
-  - component: {fileID: 1465023422}
   m_Layer: 5
   m_Name: UICanvas
   m_TagString: Untagged
@@ -1732,40 +1731,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1465023422
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1465023421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 594e38030ee84fe468f600b249051105, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  paintBallPrefab: {fileID: 6102387510640676862, guid: 7f62fd8ab9be74f4988fe5f9d2f07c62, type: 3}
-  DropLine: {fileID: 1736239557}
-  RightLine: {fileID: 1209849103}
-  LeftLine: {fileID: 1496640212}
-  Cooldown: 0.3
---- !u!114 &1465023423
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1465023421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &1465023424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2091,6 +2056,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1652965721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1652965722}
+  m_Layer: 0
+  m_Name: SplatPoint Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1652965722
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652965721}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.02, y: -2.63, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1008125138}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1736239556
 GameObject:
   m_ObjectHideFlags: 0

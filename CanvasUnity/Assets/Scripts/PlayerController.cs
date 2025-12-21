@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -6,25 +7,19 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     [SerializeField] Transform DropLine;
     [SerializeField] Transform RightLine;
     [SerializeField] Transform LeftLine;
-    [SerializeField] float Cooldown = 0.2f;
+    [SerializeField] float SpeedToTop = 20f;
 
     Paintball myBall;
-    float _timeSinceFired;
-    bool Ready => _timeSinceFired >= Cooldown && GameRunning;
+    bool Ready => !_trackingBall && GameRunning;
+    bool _trackingBall = false;
     bool GameRunning = false;
+
+    Vector3 trackPoint;
 
     private void Awake()
     {
         GameController.Instance.GameLost += OnLoss;
         GameController.Instance.GameStarted += OnStart;
-    }
-
-    private void Update()
-    {
-        if (!Ready)
-        {
-            _timeSinceFired += Time.deltaTime;
-        }
     }
 
     private void OnDestroy()
@@ -59,22 +54,40 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if (Ready && myBall == null)
         {
             myBall = PaintballManager.Instance.GetNextBall();
-            myBall.transform.position = GetWorldPoint(eventData.position);
+            StartCoroutine(TrackBallToPoint( GetWorldPoint(eventData.position)));
         }
     }
+    IEnumerator<YieldInstruction> TrackBallToPoint( Vector3 point )
+    {
+        if (_trackingBall)
+        {
+            yield return null;
+        }
+        trackPoint = point;
+        _trackingBall = true;
+        point.z = myBall.transform.position.z;
+        while ((myBall.transform.position - point).sqrMagnitude > 0.01f)
+        {
+            myBall.transform.position = Vector3.Lerp(myBall.transform.position, point, Time.deltaTime * SpeedToTop);
+            yield return null;
+        }
+
+        myBall.transform.position = point;
+        _trackingBall = false;
+    }
+
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (myBall == null)
+        if (!Ready || myBall == null)
         {
             return;
         }
-        _timeSinceFired = 0;
         myBall.FirePaintBall(DropLine.position.y);
         myBall = null;
     }
     public void OnPointerMove(PointerEventData eventData)
     {
-        if (myBall == null)
+        if (!Ready || myBall == null)
         {
             return;
         }
@@ -91,6 +104,15 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         pos.x += offset;
         pos.x = Mathf.Clamp(pos.x, LeftLine.position.x + LeftLine.localScale.x, RightLine.position.x - LeftLine.localScale.x);
         return pos;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (myBall != null)
+        {
+            Gizmos.color = Color.blueViolet;
+            Gizmos.DrawLine(myBall.transform.position, trackPoint);
+        }
     }
 
 }

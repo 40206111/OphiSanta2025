@@ -26,23 +26,22 @@ public class PaintballManager : MonoBehaviour
     public Paintball GetNextBall()
     {
         var ball = paintballList[0];
-        ball.transform.parent = null;
+        ball.Target = null;
+        ball.transform.position = positionList[0].position;
         activeBalls.Add(ball.gameObject.name, ball);
 
         for (int i = 0; i < paintballList.Count - 1; i++)
         {
             int next = i + 1;
             var ballToMove = paintballList[next];
-            ballToMove.transform.parent = positionList[i];
-            ballToMove.transform.localPosition = Vector3.zero;
+            ballToMove.Target = positionList[i];
+            ballToMove.gameObject.SetActive(true);
             paintballList[i] = ballToMove;
         }
 
         var newBall = SpawnNewBall();
-        newBall.transform.parent = positionList.Last();
-        newBall.transform.localPosition = Vector3.zero;
+        newBall.transform.position = positionList.Last().position;
         paintballList[^1] = newBall;
-        newBall.gameObject.SetActive(true);
 
         return ball;
     }
@@ -52,8 +51,7 @@ public class PaintballManager : MonoBehaviour
         for (int i = 0; i < positionList.Count; i++)
         {
             var newBall = SpawnNewBall();
-            newBall.transform.parent = positionList[i];
-            newBall.transform.localPosition = Vector3.zero;
+            newBall.transform.position = positionList[i].position;
             if (paintballList.Count <= i)
             {
                 paintballList.Add(newBall);
@@ -62,7 +60,8 @@ public class PaintballManager : MonoBehaviour
             {
                 paintballList[i] = newBall;
             }
-            newBall.gameObject.SetActive(true);
+            
+            newBall.gameObject.SetActive(i != positionList.Count - 1);
         }
     }
 

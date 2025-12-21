@@ -112,7 +112,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Paintball
   timeOutTime: 0.5
   scaleFactor: 1.25
+  trackTargetSpeed: 20
   Consumed: 0
+  Target: {fileID: 0}
 --- !u!1 &6302294407040383583
 GameObject:
   m_ObjectHideFlags: 0
