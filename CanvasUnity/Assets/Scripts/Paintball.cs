@@ -56,7 +56,7 @@ public class Paintball : MonoBehaviour
             return;
         }
 
-        if ( _rigidbody.linearVelocity.magnitude <= 0.01f && _rigidbody.angularVelocity <= 0.01f)
+        if ( _rigidbody.IsSleeping() )
         {
             if (_restTime >= timeOutTime)
             {
@@ -94,6 +94,8 @@ public class Paintball : MonoBehaviour
         _fired = false;
         Consumed = false;
         _rigidbody.simulated = false;
+        _rigidbody.angularVelocity = 0;
+        _rigidbody.linearVelocity = Vector2.zero;
         _restTime = 0;
         Tier = Random.Range(0, 3);
         _animator.ResetTrigger(SplatTrigger);
@@ -122,6 +124,10 @@ public class Paintball : MonoBehaviour
 
         if (collision.gameObject.TryGetComponent<Paintball>(out var paintBall))
         {
+            if (paintBall.Consumed)
+            {
+                return;
+            }
             if (paintBall.Tier != Tier)
             {
                 return;

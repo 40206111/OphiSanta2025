@@ -66,25 +66,42 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         trackPoint = point;
         _trackingBall = true;
         point.z = myBall.transform.position.z;
-        while ((myBall.transform.position - point).sqrMagnitude > 0.01f)
+        while (myBall != null && (myBall.transform.position - point).sqrMagnitude > 0.01f)
         {
             myBall.transform.position = Vector3.Lerp(myBall.transform.position, point, Time.deltaTime * SpeedToTop);
             yield return null;
         }
 
-        myBall.transform.position = point;
+        if (myBall != null)
+        {
+            myBall.transform.position = point;
+        }
         _trackingBall = false;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!Ready || myBall == null)
+        if (myBall == null)
         {
             return;
+        }
+        StartCoroutine(FireBall());
+    }
+
+    IEnumerator<YieldInstruction> FireBall()
+    {
+        while (_trackingBall)
+        {
+            yield return null;
+        }
+        if (myBall == null)
+        {
+            yield break;
         }
         myBall.FirePaintBall(DropLine.position.y);
         myBall = null;
     }
+
     public void OnPointerMove(PointerEventData eventData)
     {
         if (!Ready || myBall == null)
