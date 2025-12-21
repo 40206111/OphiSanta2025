@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     bool Ready => _timeSinceFired >= Cooldown && GameRunning;
     bool GameRunning = false;
 
+    private int ballNo = 0;
+
     private void Awake()
     {
         GameController.Instance.GameLost += OnLoss;
@@ -54,9 +56,10 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         foreach ( var paintball in GameController.Instance.ActiveBalls )
         {
-            paintball.ResetBall();
+            paintball.Value.ResetBall();
         }
 
+        GameController.Instance.PooledBalls.AddRange( GameController.Instance.ActiveBalls );
         GameController.Instance.ActiveBalls.Clear();
     }
 
@@ -78,15 +81,18 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             if (GameController.Instance.PooledBalls.Count == 0)
             {
                 myBall = Instantiate(paintBallPrefab);
+                myBall.gameObject.name = $"Paintball_{ballNo}";
+                ballNo++;
             }
             else
             {
-                myBall = GameController.Instance.PooledBalls.Last();
-                GameController.Instance.PooledBalls.RemoveAt(GameController.Instance.PooledBalls.Count - 1);
+                var ballData = GameController.Instance.PooledBalls.Last();
+                myBall = ballData.Value;
+                GameController.Instance.PooledBalls.Remove(ballData.Key);
             }
             myBall.gameObject.SetActive(true);
             myBall.transform.position = GetWorldPoint(eventData.position);
-            GameController.Instance.ActiveBalls.Add(myBall);
+            GameController.Instance.ActiveBalls.Add(myBall.gameObject.name, myBall);
         }
     }
     public void OnPointerUp(PointerEventData eventData)

@@ -10,12 +10,22 @@ public class Paintball : MonoBehaviour
     [SerializeField] private float scaleFactor = 1.25f;
     private Animator _animator;
     private Rigidbody2D _rigidbody;
+    private CircleCollider2D _collider;
 
     public bool Consumed;
 
     bool _fired;
 
-    public int Tier = 0;
+    private int _tier;
+    public int Tier
+    {
+        get { return _tier; }
+        set 
+        {
+            _tier = value;
+            transform.localScale = Vector3.one * Mathf.Pow(scaleFactor, _tier);
+        }
+    }
 
     float _restTime;
 
@@ -25,6 +35,8 @@ public class Paintball : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _animator = GetComponentInChildren<Animator>();
+        _collider = GetComponent<CircleCollider2D>();
+        ResetBall();
     }
 
     private void Update()
@@ -38,10 +50,12 @@ public class Paintball : MonoBehaviour
         {
             if (_restTime >= timeOutTime)
             {
-                var yVal = transform.position.y + (transform.localScale.y * 0.5f);
+                var yVal = transform.position.y + (transform.localScale.y * _collider.radius);
                 if (yVal > _failLine)
                 {
+                    _fired = false;
                     GameController.Instance.ChangeState(eGameState.Lost);
+                    Debug.Log($"Game Loss, Ball at rest over line {gameObject.name}");
                 }
             }
             else
@@ -69,25 +83,23 @@ public class Paintball : MonoBehaviour
         gameObject.SetActive(false);
         _fired = false;
         Consumed = false;
-        Tier = 0;
         _rigidbody.simulated = false;
-        transform.localScale = Vector3.one;
         _restTime = 0;
+        Tier = Random.Range(0, 3);
         _animator.ResetTrigger(SplatTrigger);
         _animator.SetTrigger(ResetTrigger);
-
-        GameController.Instance.PooledBalls.Add(this);
     }
 
     public void RemoveBall()
     {
         ResetBall();
-        GameController.Instance.ActiveBalls.Remove(this);
+        GameController.Instance.AddToPool(this);
     }
 
     public void Splat()
     {
         _animator.SetTrigger(SplatTrigger);
+        _rigidbody.simulated = false;
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -106,7 +118,6 @@ public class Paintball : MonoBehaviour
             paintBall.Consumed = true;
             paintBall.RemoveBall();
             Tier++;
-            transform.localScale *= scaleFactor;
         }
     }
 
@@ -117,6 +128,7 @@ public class Paintball : MonoBehaviour
             return;
         }
 
+        Debug.Log($"Game Loss, Ball out of bounds {gameObject.name}");
         GameController.Instance.ChangeState(eGameState.Lost);
     }
 }
