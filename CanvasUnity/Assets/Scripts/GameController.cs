@@ -1,6 +1,4 @@
-
 using System;
-using System.Collections.Generic;
 
 public enum eGameState
 {
@@ -32,15 +30,6 @@ public class GameController
     public Action GameStarted;
     public Action GameLost;
 
-    public Dictionary<string, Paintball> ActiveBalls = new Dictionary<string, Paintball>();
-    public Dictionary<string, Paintball> PooledBalls = new Dictionary<string, Paintball>();
-
-    public void AddToPool(Paintball paintball)
-    {
-        ActiveBalls.Remove(paintball.gameObject.name);
-        PooledBalls[paintball.gameObject.name] = paintball;
-    }
-
     public void ChangeState(eGameState newState)
     {
         if (GameState == newState)
@@ -61,13 +50,5 @@ public class GameController
                 break;
         }
         GameState = newState;
-    }
-
-    public void SplatBalls()
-    {
-        foreach (var ball in ActiveBalls)
-        {
-            ball.Value.Splat();
-        }
     }
 }

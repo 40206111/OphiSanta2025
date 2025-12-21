@@ -10,7 +10,7 @@ public class GameOverComponent : MonoBehaviour
     }
     private void OnDestroy()
     {
-        GameController.Instance.GameLost += OnLose;
+        GameController.Instance.GameLost -= OnLose;
         GameController.Instance.Restart -= OnRestart;
     }
 

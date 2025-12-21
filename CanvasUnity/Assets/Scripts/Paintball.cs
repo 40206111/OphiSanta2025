@@ -11,6 +11,7 @@ public class Paintball : MonoBehaviour
     private Animator _animator;
     private Rigidbody2D _rigidbody;
     private CircleCollider2D _collider;
+    private SpriteRenderer _spriteRenderer;
 
     public bool Consumed;
 
@@ -35,6 +36,7 @@ public class Paintball : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _animator = GetComponentInChildren<Animator>();
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _collider = GetComponent<CircleCollider2D>();
         ResetBall();
     }
@@ -76,6 +78,7 @@ public class Paintball : MonoBehaviour
         _rigidbody.simulated = true;
         _fired = true;
         _failLine = failLine;
+        _spriteRenderer.sortingOrder = -1;
     }
 
     public void ResetBall()
@@ -88,12 +91,13 @@ public class Paintball : MonoBehaviour
         Tier = Random.Range(0, 3);
         _animator.ResetTrigger(SplatTrigger);
         _animator.SetTrigger(ResetTrigger);
+        _spriteRenderer.sortingOrder = 1;
     }
 
     public void RemoveBall()
     {
         ResetBall();
-        GameController.Instance.AddToPool(this);
+        PaintballManager.Instance.AddToPool(this);
     }
 
     public void Splat()

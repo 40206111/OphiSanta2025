@@ -9,7 +9,7 @@ public class StartMenuComponent : MonoBehaviour
     }
     private void OnDestroy()
     {
-        GameController.Instance.GameStarted += OnStart;
+        GameController.Instance.GameStarted -= OnStart;
         GameController.Instance.Restart -= OnRestart;
     }
 
