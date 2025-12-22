@@ -19,6 +19,8 @@ public class Paintball : MonoBehaviour
 
     bool _fired;
 
+    public Color MyColour { get; private set; }
+
     private int _tier;
     public int Tier
     {
@@ -41,6 +43,21 @@ public class Paintball : MonoBehaviour
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _collider = GetComponent<CircleCollider2D>();
         ResetBall();
+    }
+
+    private void OnEnable()
+    {
+        var pallet = GameController.Instance.PalletCreator.Colours;
+
+        var rand = Random.Range(0, pallet.Count);
+        MyColour = pallet[rand];
+
+        for (int i = 1; i < Tier + 1; i++)
+        {
+            rand = Random.Range(0, pallet.Count);
+            MyColour = MixColours(MyColour, pallet[rand]);
+        }
+        _spriteRenderer.color = MyColour;
     }
 
     private void Update()
@@ -79,6 +96,14 @@ public class Paintball : MonoBehaviour
         }
     }
 
+    private Color MixColours(Color colour1, Color colour2)
+    {
+        colour1 = colour1 * 0.5f + colour2 * 0.5f;
+        colour1 = colour1 == Color.white ? new Color(0.9f, 0.9f, 0.9f) : colour1;
+
+        return colour1;
+    }
+
     public void FirePaintBall(float failLine)
     {
         _animator.ResetTrigger(ResetTrigger);
@@ -101,6 +126,7 @@ public class Paintball : MonoBehaviour
         _animator.ResetTrigger(SplatTrigger);
         _animator.SetTrigger(ResetTrigger);
         _spriteRenderer.sortingOrder = 1;
+        Target = null;
     }
 
     public void RemoveBall()
@@ -122,21 +148,31 @@ public class Paintball : MonoBehaviour
             return;
         }
 
-        if (collision.gameObject.TryGetComponent<Paintball>(out var paintBall))
+        if (collision.gameObject.TryGetComponent<Paintball>(out var paintball))
         {
-            if (paintBall.Consumed)
+            if (paintball.Consumed)
             {
                 return;
             }
-            if (paintBall.Tier != Tier)
+            if (paintball.Tier != Tier)
             {
                 return;
             }
-            paintBall.Consumed = true;
-            paintBall.RemoveBall();
-            Tier++;
-            GameController.Instance.CurrentScore += Tier * Tier;
+
+            HitPaintball(paintball);
         }
+    }
+
+    private void HitPaintball( Paintball paintball )
+    {
+        paintball.Consumed = true;
+        paintball.RemoveBall();
+        Tier++;
+        GameController.Instance.CurrentScore += Tier * Tier;
+
+        MyColour = MixColours(MyColour, paintball.MyColour);
+        _spriteRenderer.color = MyColour;
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

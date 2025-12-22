@@ -42,6 +42,8 @@ public class GameController
     public List<int> HighScores = new List<int>();
     public int CurrentScore;
 
+    public PalletCreator PalletCreator = new PalletCreator();
+
     public void ChangeState(eGameState newState)
     {
         if (GameState == newState)
@@ -56,6 +58,7 @@ public class GameController
                 Restart?.Invoke();
                 break;
             case eGameState.Running:
+                PalletCreator.CreatePallet();
                 GameStarted?.Invoke();
                 break;
             case eGameState.Lost:

@@ -84,13 +84,6 @@ public class PaintballManager : MonoBehaviour
         return newBall;
     }
 
-    public void SplatBalls()
-    {
-        foreach (var ball in activeBalls)
-        {
-            ball.Value.Splat();
-        }
-    }
     public void OnRestart()
     {
         foreach (var paintball in activeBalls)
@@ -99,8 +92,18 @@ public class PaintballManager : MonoBehaviour
         }
 
         pooledBalls.AddRange(activeBalls);
+    }
+
+    public void OnGameLost()
+    {
+        foreach (var ball in activeBalls)
+        {
+            ball.Value.Splat();
+        }
+
         foreach (var ball in paintballList)
         {
+            ball.ResetBall();
             pooledBalls.Add(ball.gameObject.name, ball);
         }
         activeBalls.Clear();
@@ -113,7 +116,7 @@ public class PaintballManager : MonoBehaviour
             Instance = this;
             GameController.Instance.GameStarted += SetUpBalls;
             GameController.Instance.Restart += OnRestart;
-            GameController.Instance.GameLost += SplatBalls;
+            GameController.Instance.GameLost += OnGameLost;
         }
         else
         {
@@ -125,6 +128,6 @@ public class PaintballManager : MonoBehaviour
     {
         GameController.Instance.GameStarted -= SetUpBalls;
         GameController.Instance.Restart -= OnRestart;
-        GameController.Instance.GameLost -= SplatBalls;
+        GameController.Instance.GameLost -= OnGameLost;
     }
 }
