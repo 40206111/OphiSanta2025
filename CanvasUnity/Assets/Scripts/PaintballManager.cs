@@ -18,7 +18,7 @@ public class PaintballManager : MonoBehaviour
     Dictionary<string, Paintball> pooledBalls = new Dictionary<string, Paintball>();
 
     private int ballNo = 0;
-    private float canvasResScaleFactor = 1.5f;
+    private readonly float canvasResScaleFactor = 1.5f;
 
     private Texture2D _canvasTexture;
 
