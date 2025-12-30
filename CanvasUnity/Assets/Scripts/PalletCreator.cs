@@ -7,15 +7,18 @@ public class PalletCreator
 
     public const int MaxColours = 5;
 
+    private float range = 0.25f;
+
     public void CreatePallet()
     {
         Colours.Clear();
+        var center = Random.Range(0, 1.0f);
+        var hueMin = Mathf.Max(center - range, 0);
+        var hueMax = Mathf.Min(center + range, 1);
+
         for (int i = 0; i < MaxColours; i++)
         {
-            var randR = Random.Range(0, 1.0f);
-            var randG = Random.Range(0, 1.0f);
-            var randB = Random.Range(0, 1.0f);
-            Colours.Add(new Color(randR, randG, randB));
+            Colours.Add(Random.ColorHSV(hueMin, hueMax, 1.0f, 1.0f, 0.5f, 1.0f));
         }
     }
 

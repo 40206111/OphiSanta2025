@@ -451,6 +451,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bucket
       objectReference: {fileID: 0}
+    - target: {fileID: 6618737915383182056, guid: d9e4b3e4a5aee1b40a92d0bfdfa050c7, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 498cdfc4a5c101d489357be518273e30, type: 2}
     - target: {fileID: 7369960196957736960, guid: d9e4b3e4a5aee1b40a92d0bfdfa050c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -502,6 +506,11 @@ PrefabInstance:
 --- !u!4 &2634981772038290782 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6867878749096850067, guid: d9e4b3e4a5aee1b40a92d0bfdfa050c7, type: 3}
+  m_PrefabInstance: {fileID: 2634981772038290781}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &2634981772038290783 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6618737915383182056, guid: d9e4b3e4a5aee1b40a92d0bfdfa050c7, type: 3}
   m_PrefabInstance: {fileID: 2634981772038290781}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3107577353343757745
@@ -804,6 +813,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1316333327676659885, guid: 6834d7386216e2b4ebb5204dc212efcb, type: 3}
+      propertyPath: canvasMat
+      value: 
+      objectReference: {fileID: 2100000, guid: 498cdfc4a5c101d489357be518273e30, type: 2}
+    - target: {fileID: 1316333327676659885, guid: 6834d7386216e2b4ebb5204dc212efcb, type: 3}
+      propertyPath: canvasSpriteRenderer
+      value: 
+      objectReference: {fileID: 2634981772038290783}
     - target: {fileID: 2931274914673024893, guid: 6834d7386216e2b4ebb5204dc212efcb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.4

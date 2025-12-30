@@ -9,6 +9,8 @@ public class PaintballManager : MonoBehaviour
 
     [SerializeField] Paintball paintballPrefab;
     [SerializeField] List<Transform> positionList = new List<Transform>();
+    Material canvasMat;
+    [SerializeField] SpriteRenderer canvasSpriteRenderer;
     
     List<Paintball> paintballList = new List<Paintball>();
 
@@ -16,6 +18,8 @@ public class PaintballManager : MonoBehaviour
     Dictionary<string, Paintball> pooledBalls = new Dictionary<string, Paintball>();
 
     private int ballNo = 0;
+
+    private Texture2D _canvasTexture;
 
     public void AddToPool(Paintball paintball)
     {
@@ -96,10 +100,43 @@ public class PaintballManager : MonoBehaviour
 
     public void OnGameLost()
     {
+        var bounds = canvasSpriteRenderer.localBounds;
+        var scaledExtents = Vector3.Scale( bounds.extents, canvasSpriteRenderer.transform.localScale);
+        var zero = canvasSpriteRenderer.transform.position - bounds.extents; 
         foreach (var ball in activeBalls)
         {
-            ball.Value.Splat();
+            var pos = ball.Value.transform.position - zero;
+
+            if( pos.x < 0 || pos.y < 0 || pos.x > bounds.size.x || pos.y > bounds.size.y)
+            {
+                pos *= 100;
+            }
+            else
+            {
+                pos *= 100;
+                _canvasTexture.SetPixel((int)pos.x, (int)pos.y, ball.Value.MyColour);
+                ball.Value.Splat();
+            }
+
+            var tier = ball.Value.Tier;
+            var splats = Random.Range(tier, tier + 8);
+            int xVariation = 0;
+            int yVariation = 0;
+            for (int i = 0; i <= splats; ++i)
+            {
+                while (xVariation + yVariation == 0)
+                {
+                    xVariation = Random.Range(0, (int)(100 * ball.Value.transform.localScale.x));
+                    yVariation = Random.Range(0, (int)(100 * ball.Value.transform.localScale.x));
+                }
+                var newPos = pos;
+                newPos.x += xVariation;
+                newPos.y += yVariation;
+                _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.Value.MyColour);
+            }
         }
+        _canvasTexture.Apply(true, false);
+        canvasMat.SetTexture("_PaintingTex", _canvasTexture);
 
         foreach (var ball in paintballList)
         {
@@ -117,6 +154,23 @@ public class PaintballManager : MonoBehaviour
             GameController.Instance.GameStarted += SetUpBalls;
             GameController.Instance.Restart += OnRestart;
             GameController.Instance.GameLost += OnGameLost;
+
+            canvasMat = canvasSpriteRenderer.material;
+
+            var bounds = canvasSpriteRenderer.localBounds;
+            var scaledExtents = Vector3.Scale( bounds.extents, canvasSpriteRenderer.transform.localScale);
+            var doubleExtents = scaledExtents * 200.0f;
+            _canvasTexture = new Texture2D((int)(doubleExtents.x), (int)(doubleExtents.y));
+            var colours = System.Buffers.ArrayPool<Color>.Shared.Rent((int)(doubleExtents.x * doubleExtents.y));
+            for (int i = 0; i < colours.Length; i++)
+            {
+                colours[i] = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+            }
+            _canvasTexture.SetPixels(colours);
+
+            System.Buffers.ArrayPool<Color>.Shared.Return(colours);
+            _canvasTexture.Apply(true, false);
+            canvasMat.SetTexture("_PaintingTex", _canvasTexture);
         }
         else
         {
