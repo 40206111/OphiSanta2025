@@ -18,7 +18,7 @@ public class PaintballManager : MonoBehaviour
     Dictionary<string, Paintball> pooledBalls = new Dictionary<string, Paintball>();
 
     private int ballNo = 0;
-    private float canvasResScaleFactor = 1.25f;
+    private float canvasResScaleFactor = 1.5f;
 
     private Texture2D _canvasTexture;
 
@@ -108,35 +108,9 @@ public class PaintballManager : MonoBehaviour
         foreach (var ball in activeBalls)
         {
             ball.Value.Splat();
-            var pos = ball.Value.transform.position - zero;
 
-            if( pos.x < 0 || pos.y < 0 || pos.x > scaledSize.x || pos.y > scaledSize.y)
-            {
-                pos *= canvasResScaleFactor;
-            }
-            else
-            {
-                pos *= canvasResScaleFactor;
-                _canvasTexture.SetPixel((int)pos.x, (int)pos.y, ball.Value.MyColour);
-            }
+            BallSplatOnCanvas(ball.Value, zero, scaledSize);
 
-            var tier = ball.Value.Tier;
-            var splats = Random.Range(tier, tier + 3);
-            int xVariation = 0;
-            int yVariation = 0;
-            for (int i = 0; i <= splats; ++i)
-            {
-                while (xVariation + yVariation == 0)
-                {
-                    var range = (int)(ball.Value.transform.localScale.x * canvasResScaleFactor);
-                    xVariation = Random.Range(-range, range);
-                    yVariation = Random.Range(-range, range);
-                }
-                var newPos = pos;
-                newPos.x += xVariation;
-                newPos.y += yVariation;
-                _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.Value.MyColour);
-            }
         }
         _canvasTexture.Apply(true, false);
         canvasMat.SetTexture("_PaintingTex", _canvasTexture);
@@ -149,6 +123,57 @@ public class PaintballManager : MonoBehaviour
         activeBalls.Clear();
     }
 
+    public void BigBallSplat(Paintball ball)
+    {
+        ball.Splat();
+
+        var bounds = canvasSpriteRenderer.localBounds;
+        var scaledBounds = Vector3.Scale(bounds.extents, canvasSpriteRenderer.transform.localScale);
+        var scaledSize = Vector3.Scale(bounds.size, canvasSpriteRenderer.transform.localScale);
+        var zero = canvasSpriteRenderer.transform.position - scaledBounds;
+        
+        BallSplatOnCanvas(ball, zero, scaledSize);
+
+        _canvasTexture.Apply(true, false);
+        canvasMat.SetTexture("_PaintingTex", _canvasTexture);
+    }
+
+    public void BallSplatOnCanvas(Paintball ball, Vector3 zero, Vector3 scaledSize)
+    {
+        var pos = ball.transform.position - zero;
+
+        if (pos.x < 0 || pos.y < 0 || pos.x > scaledSize.x || pos.y > scaledSize.y)
+        {
+            pos *= canvasResScaleFactor;
+        }
+        else
+        {
+            pos *= canvasResScaleFactor;
+            _canvasTexture.SetPixel((int)pos.x, (int)pos.y, ball.MyColour);
+        }
+
+        var tier = ball.Tier;
+        var min = Mathf.Max(tier - 3, 0);
+        var splats = Random.Range(min, tier + tier * canvasResScaleFactor);
+        int xVariation = 0;
+        int yVariation = 0;
+        for (int i = 0; i <= splats; ++i)
+        {
+            while (Mathf.Abs(xVariation) + Mathf.Abs(yVariation) == 0)
+            {
+                var range = (int)(ball.transform.localScale.x * 1.2f);
+                xVariation = Random.Range(-range, range);
+                yVariation = Random.Range(-range, range);
+            }
+            var newPos = pos;
+            newPos.x += xVariation;
+            newPos.y += yVariation;
+            xVariation = 0;
+            yVariation = 0;
+            _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.MyColour);
+        }
+    }
+
     private void Awake()
     {
         if (Instance == null)
@@ -157,6 +182,7 @@ public class PaintballManager : MonoBehaviour
             GameController.Instance.GameStarted += SetUpBalls;
             GameController.Instance.Restart += OnRestart;
             GameController.Instance.GameLost += OnGameLost;
+            GameController.Instance.MaxBallPop += BigBallSplat;
 
             canvasMat = canvasSpriteRenderer.material;
 
@@ -188,5 +214,6 @@ public class PaintballManager : MonoBehaviour
         GameController.Instance.GameStarted -= SetUpBalls;
         GameController.Instance.Restart -= OnRestart;
         GameController.Instance.GameLost -= OnGameLost;
+        GameController.Instance.MaxBallPop -= BigBallSplat;
     }
 }

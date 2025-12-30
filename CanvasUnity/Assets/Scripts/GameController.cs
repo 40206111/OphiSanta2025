@@ -38,6 +38,7 @@ public class GameController
     public Action Restart;
     public Action GameStarted;
     public Action GameLost;
+    public Action<Paintball> MaxBallPop;
 
     public List<int> HighScores = new List<int>();
     public int CurrentScore;
@@ -115,5 +116,10 @@ public class GameController
                 HighScores.Add(score);
             }
         }
+    }
+
+    public void CauseMaxBallPop(Paintball ball)
+    {
+        MaxBallPop?.Invoke(ball);
     }
 }

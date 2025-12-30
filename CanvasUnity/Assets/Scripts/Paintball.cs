@@ -163,9 +163,16 @@ public class Paintball : MonoBehaviour
         }
     }
 
+    public IEnumerator RemoveBallAfterWait()
+    {
+        yield return new WaitForSeconds(0.5f);
+        RemoveBall();
+    }
+
     private void HitPaintball( Paintball paintball )
     {
         paintball.Consumed = true;
+
         paintball.RemoveBall();
         Tier++;
         GameController.Instance.CurrentScore += Tier * Tier;
@@ -173,6 +180,14 @@ public class Paintball : MonoBehaviour
         MyColour = MixColours(MyColour, paintball.MyColour);
         _spriteRenderer.color = MyColour;
 
+
+        if (Tier == 8)
+        {
+            GameController.Instance.MaxBallPop(this);
+            StartCoroutine(RemoveBallAfterWait());
+            StartCoroutine(paintball.RemoveBallAfterWait());
+            return;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
