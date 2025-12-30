@@ -3,7 +3,6 @@ Shader "Custom/CanvasShader"
     Properties
     {
         _PaintingTex("Painting Texture", 2D) = "white"
-        _TextureSize("Texture Size", Vector) = (1.0,1.0,1.0)
     }
 
     SubShader
@@ -46,7 +45,7 @@ Shader "Custom/CanvasShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 colour = SAMPLE_TEXTURE2D(_PaintingTex, sampler_PaintingTex, IN.uv);
-                colour += half4(1.0, 1.0, 1.0, 1.0) * (float)(colour == half4(0.0, 0.0, 0.0, 0.0));
+                colour = saturate(colour + half4(0.1, 0.1, 0.1, 1.0));
                 return colour;
             }
             ENDHLSL

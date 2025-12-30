@@ -176,7 +176,6 @@ public class PaintballManager : MonoBehaviour
             System.Buffers.ArrayPool<Color>.Shared.Return(colours);
             _canvasTexture.Apply(true, false);
             canvasMat.SetTexture("_PaintingTex", _canvasTexture);
-            canvasMat.SetVector("_TextureSize", new Vector3(_canvasTexture.width, _canvasTexture.height, 1));
         }
         else
         {

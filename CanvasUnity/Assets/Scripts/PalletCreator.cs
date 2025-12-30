@@ -18,7 +18,7 @@ public class PalletCreator
 
         for (int i = 0; i < MaxColours; i++)
         {
-            Colours.Add(Random.ColorHSV(hueMin, hueMax, 1.0f, 1.0f, 0.5f, 1.0f));
+            Colours.Add(Random.ColorHSV(hueMin, hueMax, 1.0f, 1.0f, 0.4f, 1.0f));
         }
     }
 
