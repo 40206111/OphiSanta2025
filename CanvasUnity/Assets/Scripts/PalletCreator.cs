@@ -7,7 +7,7 @@ public class PalletCreator
 
     public const int MaxColours = 5;
 
-    private float range = 0.3f;
+    private float range = 0.25f;
 
     public void CreatePallet()
     {
@@ -16,7 +16,7 @@ public class PalletCreator
         var hueMin = center - range;
         var hueMax = center + range;
         float overflow = hueMin < 0.0f ? hueMin : 0.0f;
-        overflow = hueMax > 1.0f ? hueMax : 0.0f;
+        overflow = hueMax > 1.0f ? 1 - hueMax : overflow;
         var absOverflow = Mathf.Abs(overflow);
 
         hueMin = Mathf.Max(hueMin, 0);
