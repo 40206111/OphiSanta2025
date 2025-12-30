@@ -1,9 +1,9 @@
-Shader "Custom/CanvasShader"
+Shader "Custom/NewUnlitUniversalRenderPipelineShader"
 {
     Properties
     {
-        _PaintingTex("Painting Texture", 2D) = "white"
-        _TextureSize("Texture Size", Vector) = (1.0,1.0,1.0)
+        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
+        [MainTexture] _BaseMap("Base Map", 2D) = "white"
     }
 
     SubShader
@@ -30,24 +30,27 @@ Shader "Custom/CanvasShader"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
             };
-            
-            TEXTURE2D(_PaintingTex);
-            SAMPLER(sampler_PaintingTex);
-            half3 _TextureSize;
+
+            TEXTURE2D(_BaseMap);
+            SAMPLER(sampler_BaseMap);
+
+            CBUFFER_START(UnityPerMaterial)
+                half4 _BaseColor;
+                float4 _BaseMap_ST;
+            CBUFFER_END
 
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = IN.uv;
+                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
-                half4 colour = SAMPLE_TEXTURE2D(_PaintingTex, sampler_PaintingTex, IN.uv);
-                colour += half4(1.0, 1.0, 1.0, 1.0) * (float)(colour == half4(0.0, 0.0, 0.0, 0.0));
-                return colour;
+                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                return color;
             }
             ENDHLSL
         }
