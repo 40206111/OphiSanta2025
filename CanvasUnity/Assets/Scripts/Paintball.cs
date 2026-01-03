@@ -29,6 +29,7 @@ public class Paintball : MonoBehaviour
         {
             _tier = value;
             transform.localScale = Vector3.one * Mathf.Pow(scaleFactor, _tier);
+            myMat.SetInt("_Tier", _tier);
         }
     }
 
@@ -36,11 +37,18 @@ public class Paintball : MonoBehaviour
 
     float _failLine;
 
+    private Material myMat;
+
+    private Texture2D _paintTexture;
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _animator = GetComponentInChildren<Animator>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        myMat = new Material(Shader.Find("Custom/BallShader"));
+        _spriteRenderer.material = myMat;
+        SetUpTexture();
         _collider = GetComponent<CircleCollider2D>();
         ResetBall();
     }
@@ -94,6 +102,23 @@ public class Paintball : MonoBehaviour
         {
             _restTime = 0;
         }
+    }
+
+    private void SetUpTexture()
+    {
+        _paintTexture = new Texture2D(16, 16);
+        var colours = System.Buffers.ArrayPool<Color>.Shared.Rent(256);
+        for (int i = 0; i < colours.Length; i++)
+        {
+            colours[i] = i < PalletCreator.MaxColours ? GameController.Instance.PalletCreator.Colours[i] : Color.white;
+        }
+        _paintTexture.SetPixels(colours);
+
+        _paintTexture.filterMode = FilterMode.Point;
+
+        System.Buffers.ArrayPool<Color>.Shared.Return(colours);
+        _paintTexture.Apply(true, false);
+        myMat.SetTexture("_Colours", _paintTexture);
     }
 
     private Color MixColours(Color colour1, Color colour2)
