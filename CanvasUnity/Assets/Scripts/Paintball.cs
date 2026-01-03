@@ -141,7 +141,11 @@ public class Paintball : MonoBehaviour
         _rigidbody.simulated = false;
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision) => Collide(collision);
+
+    private void OnCollisionEnter2D(Collision2D collision) => Collide( collision );
+
+    private void Collide(Collision2D collision)
     {
         if (!_fired || Consumed)
         {
