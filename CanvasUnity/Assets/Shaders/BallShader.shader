@@ -55,16 +55,35 @@ Shader "Custom/BallShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 int amount = pow(2, _Tier);
+                float tau = radians(360.0);
 
-                amount *= floor((_Time.y % amount)) / amount; // abs(sin(0.25 * _Time.y));
-
-                half2 sampleCoord = half2(0,0);
-                sampleCoord.x = amount % 16;
-                sampleCoord.y = amount / 16;
+                float4 paintColour = float4(0.0, 0.0, 0.0, 1.0);
+                half2 centreUv = (IN.uv - 0.5) * 2.0;
+                float distToCentre = distance(centreUv, half2(0.0, 0.0));
+    
+                half2 positions[256];
+                
+                float disTo[256];
+                
+                int selection = 0;
+                float lastDist = 1000000.0;
+                for (int i = 0; i < amount; ++i)
+                {
+                    float progress = tau * 1.0 * distToCentre + tau * float(i) / float(amount);
+                    positions[i] = half2(cos(progress), sin(progress)) * distToCentre;
+                    disTo[i] = distance(centreUv, positions[i]);
+;
+                    bool isCloser =  disTo[i] <= lastDist;
+                    selection = i * int(isCloser) + selection * int(!isCloser);
+                    lastDist = disTo[selection];
+                }
+    
+                half2 sampleCoord = half2(selection,selection);
+                sampleCoord.x %= 16;
+                sampleCoord.y /= 16;
                 sampleCoord /= 16;
 
-                float4 paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord);// * IN.uv.y;
-                //paintColour += (SAMPLE_TEXTURE2D(_Colours, sampler_Colours, 0) - paintColour) * (1 - IN.uv.y) ;
+                paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord);
                 paintColour.a = 1.0;
 
                 half4 colour = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * paintColour;
