@@ -171,8 +171,10 @@ public class PaintballManager : MonoBehaviour
             xVariation = 0;
             yVariation = 0;
             var textureSize = (int)Mathf.Pow(2, ball.Tier);
-
-            _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.PaintTexture.GetPixel(0, 0));
+            int randColIndex = Random.Range(0, textureSize);
+            int x = randColIndex % 16;
+            int y = randColIndex / 16;
+            _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.PaintTexture.GetPixel(x, y));
         }
     }
 

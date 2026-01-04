@@ -54,8 +54,19 @@ Shader "Custom/BallShader"
 
             half4 frag(Varyings IN) : SV_Target
             {
+                int amount = pow(2, _Tier);
+
+                amount *= floor((_Time.y % amount)) / amount; // abs(sin(0.25 * _Time.y));
+
                 half2 sampleCoord = half2(0,0);
-                float4 paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord);
+                sampleCoord.x = amount % 16;
+                sampleCoord.y = amount / 16;
+                sampleCoord /= 16;
+
+                float4 paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord);// * IN.uv.y;
+                //paintColour += (SAMPLE_TEXTURE2D(_Colours, sampler_Colours, 0) - paintColour) * (1 - IN.uv.y) ;
+                paintColour.a = 1.0;
+
                 half4 colour = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * paintColour;
                 return colour;
             }

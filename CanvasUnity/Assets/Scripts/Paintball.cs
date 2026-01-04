@@ -56,7 +56,9 @@ public class Paintball : MonoBehaviour
     {
         var pallet = GameController.Instance.PalletCreator.Colours;
 
-        for (int i = 0; i < Tier + 1; i++)
+        var amount = Mathf.Pow(2, Tier);
+
+        for (int i = 0; i < amount; i++)
         {
             var rand = Random.Range(0, pallet.Count);
             PaintTexture.SetPixel(i, 0, pallet[rand]);
