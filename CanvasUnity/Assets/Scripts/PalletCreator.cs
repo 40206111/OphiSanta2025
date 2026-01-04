@@ -29,7 +29,7 @@ public class PalletCreator
             var max = randUseOffset && overflow > 0 ? overflow : hueMax;
             min = randUseOffset && overflow < 0 ? 1 + overflow : min;
             max = randUseOffset && overflow < 0 ? 1 : max;
-            var colour = Random.ColorHSV(min, max, 1.0f, 1.0f, 0.4f, 1.0f);
+            var colour = Random.ColorHSV(min, max, 0.6f, 1.0f, 0.4f, 1.0f);
             colour.a = 1.0f;
             Colours.Add(colour);
         }
