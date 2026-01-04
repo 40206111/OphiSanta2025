@@ -149,7 +149,7 @@ public class PaintballManager : MonoBehaviour
         else
         {
             pos *= canvasResScaleFactor;
-            _canvasTexture.SetPixel((int)pos.x, (int)pos.y, ball.MyColour);
+            _canvasTexture.SetPixel((int)pos.x, (int)pos.y, ball.PaintTexture.GetPixel(0, 0));
         }
 
         var tier = ball.Tier;
@@ -170,7 +170,9 @@ public class PaintballManager : MonoBehaviour
             newPos.y += yVariation;
             xVariation = 0;
             yVariation = 0;
-            _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.MyColour);
+            var textureSize = (int)Mathf.Pow(2, ball.Tier);
+
+            _canvasTexture.SetPixel((int)newPos.x, (int)newPos.y, ball.PaintTexture.GetPixel(0, 0));
         }
     }
 

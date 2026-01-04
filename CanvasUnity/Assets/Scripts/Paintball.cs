@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static UnityEditor.UIElements.ToolbarMenu;
 
 public class Paintball : MonoBehaviour
 {
@@ -19,8 +20,6 @@ public class Paintball : MonoBehaviour
 
     bool _fired;
 
-    public Color MyColour { get; private set; }
-
     private int _tier;
     public int Tier
     {
@@ -39,7 +38,7 @@ public class Paintball : MonoBehaviour
 
     private Material myMat;
 
-    private Texture2D _paintTexture;
+    public Texture2D PaintTexture { get; private set; }
 
     private void Awake()
     {
@@ -57,15 +56,13 @@ public class Paintball : MonoBehaviour
     {
         var pallet = GameController.Instance.PalletCreator.Colours;
 
-        var rand = Random.Range(0, pallet.Count);
-        MyColour = pallet[rand];
-
-        for (int i = 1; i < Tier + 1; i++)
+        for (int i = 0; i < Tier + 1; i++)
         {
-            rand = Random.Range(0, pallet.Count);
-            MyColour = MixColours(MyColour, pallet[rand]);
+            var rand = Random.Range(0, pallet.Count);
+            PaintTexture.SetPixel(i, 0, pallet[rand]);
         }
-        _spriteRenderer.color = MyColour;
+        PaintTexture.Apply(true, false);
+        myMat.SetTexture("_Colours", PaintTexture);
     }
 
     private void Update()
@@ -106,19 +103,13 @@ public class Paintball : MonoBehaviour
 
     private void SetUpTexture()
     {
-        _paintTexture = new Texture2D(16, 16);
-        var colours = System.Buffers.ArrayPool<Color>.Shared.Rent(256);
-        for (int i = 0; i < colours.Length; i++)
+        PaintTexture = new Texture2D(16, 16)
         {
-            colours[i] = i < PalletCreator.MaxColours ? GameController.Instance.PalletCreator.Colours[i] : Color.white;
-        }
-        _paintTexture.SetPixels(colours);
+            filterMode = FilterMode.Point
+        };
 
-        _paintTexture.filterMode = FilterMode.Point;
-
-        System.Buffers.ArrayPool<Color>.Shared.Return(colours);
-        _paintTexture.Apply(true, false);
-        myMat.SetTexture("_Colours", _paintTexture);
+        PaintTexture.Apply(true, false);
+        myMat.SetTexture("_Colours", PaintTexture);
     }
 
     private Color MixColours(Color colour1, Color colour2)
@@ -203,12 +194,23 @@ public class Paintball : MonoBehaviour
         paintball.Consumed = true;
 
         paintball.RemoveBall();
+
+        int colourAmount = (int)Mathf.Pow(2, Tier);
+        var colours = paintball.PaintTexture.GetPixels();
+
+        for (int i = 0; i < colourAmount; i++)
+        {
+            int colourIndex = colourAmount + i;
+            int x = colourIndex % 16;
+            int y = colourIndex / 16;
+            PaintTexture.SetPixel(x, y, colours[i]);
+        }
+
+        PaintTexture.Apply(true, false);
+        myMat.SetTexture("_Colours", PaintTexture);
+
         Tier++;
         GameController.Instance.CurrentScore += Tier * Tier;
-
-        MyColour = MixColours(MyColour, paintball.MyColour);
-        _spriteRenderer.color = MyColour;
-
 
         if (Tier == 8)
         {
