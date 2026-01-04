@@ -39,6 +39,8 @@ public class Paintball : MonoBehaviour
     private Material myMat;
 
     public Texture2D PaintTexture { get; private set; }
+    private const float _dimValue = 0.1f;
+    private Color _dimColour = new Color(_dimValue, _dimValue, _dimValue, 0.0f);
 
     private void Awake()
     {
@@ -58,10 +60,19 @@ public class Paintball : MonoBehaviour
 
         var amount = Mathf.Pow(2, Tier);
 
+        var lastCol = Color.white;
         for (int i = 0; i < amount; i++)
         {
             var rand = Random.Range(0, pallet.Count);
-            PaintTexture.SetPixel(i, 0, pallet[rand]);
+            var newCol = pallet[rand];
+
+            if ( lastCol == newCol )
+            {
+                newCol -= _dimColour;
+            }
+            PaintTexture.SetPixel(i, 0, newCol);
+
+            lastCol = newCol;
         }
         PaintTexture.Apply(true, false);
         myMat.SetTexture("_Colours", PaintTexture);
@@ -112,14 +123,6 @@ public class Paintball : MonoBehaviour
 
         PaintTexture.Apply(true, false);
         myMat.SetTexture("_Colours", PaintTexture);
-    }
-
-    private Color MixColours(Color colour1, Color colour2)
-    {
-        colour1 = colour1 * 0.5f + colour2 * 0.5f;
-        colour1 = colour1 == Color.white ? new Color(0.9f, 0.9f, 0.9f) : colour1;
-
-        return colour1;
     }
 
     public void FirePaintBall(float failLine)
@@ -200,12 +203,18 @@ public class Paintball : MonoBehaviour
         int colourAmount = (int)Mathf.Pow(2, Tier);
         var colours = paintball.PaintTexture.GetPixels();
 
+        var lastCol = Color.white;
         for (int i = 0; i < colourAmount; i++)
         {
             int colourIndex = colourAmount + i;
             int x = colourIndex % 16;
             int y = colourIndex / 16;
-            PaintTexture.SetPixel(x, y, colours[i]);
+            var newCol = colours[i];
+            if (lastCol == newCol)
+            {
+                newCol -= _dimColour;
+            }
+            PaintTexture.SetPixel(x, y, newCol);
         }
 
         PaintTexture.Apply(true, false);
