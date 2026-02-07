@@ -9,6 +9,7 @@ public class Paintball : MonoBehaviour
     [SerializeField] private float timeOutTime = 0.5f;
     [SerializeField] private float scaleFactor = 1.25f;
     [SerializeField] private float trackTargetSpeed = 2f;
+    [SerializeField] Material _ballMatt;
     private Animator _animator;
     private Rigidbody2D _rigidbody;
     private CircleCollider2D _collider;
@@ -46,7 +47,7 @@ public class Paintball : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _animator = GetComponentInChildren<Animator>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        myMat = new Material(Shader.Find("Custom/BallShader"));
+        myMat = new Material(_ballMatt);
         _spriteRenderer.material = myMat;
         SetUpTexture();
         _collider = GetComponent<CircleCollider2D>();
