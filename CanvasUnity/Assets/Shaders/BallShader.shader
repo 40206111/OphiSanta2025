@@ -6,7 +6,8 @@ Shader "Custom/BallShader"
         [MainTexture] _MainTex("Sprite Texture", 2D) = "white"
         _Colours("Colours", 2D) = "white"
         [Toggle] _USE_SPIRALS ("Use Spirals", Integer) = 0
-        [HideInInspector] _Tier("Tier", int) = 0
+        _Offset ("Offset", float) = 0.5
+        [HideInInspector] _Tier("Tier", Integer) = 0
     }
 
     SubShader
@@ -47,6 +48,8 @@ Shader "Custom/BallShader"
             TEXTURE2D(_Colours);
             SAMPLER(sampler_Colours);
             int _Tier;
+            float _Offset;
+            float3 colours[256];
 
             Varyings vert(Attributes IN)
             {
@@ -61,37 +64,45 @@ Shader "Custom/BallShader"
                 float4 paintColour = float4(0.0, 0.0, 0.0, 1.0);
                 int amount = pow(2, _Tier);
 
-#if _USE_SPIRALS_ON
-                float tau = radians(360.0);
+            #if _USE_SPIRALS_ON
+                // Normalized pixel coordinates (from -1 to 1)
+                float2 uv = (IN.uv - 0.5) * 2.0;
+    
+                float dist = length(uv);
+    
+                float2 start = float2(0.0, 1.0);
+                uv = uv / dist;
+    
+                float dotProduct = dot(start, uv);
+                dotProduct = clamp(dotProduct, -1.0, 1.0);
+                float angle = acos(dotProduct);
+    
+                angle *= float(uv.x >= 0) * 2.0 - 1.0;
+    
+                angle += radians(180.0);
+    
+                angle /= radians(360.0);
+    
+                angle += _Offset * (1.0 - pow(1.0 - dist, 5.0));
+                angle %= 1.0;
+    
+                int index = floor(angle * float(amount));
 
-                half2 centreUv = (IN.uv - 0.5) * 2.0;
-                float distToCentre = distance(centreUv, half2(0.0, 0.0));
-    
-                half2 positions[256];
-                
-                float disTo[256];
-                
-                int selection = 0;
-                float lastDist = 1000000.0;
-                for (int i = 0; i < amount; ++i)
-                {
-                    float progress = tau * 1.0 * distToCentre + tau * float(i) / float(amount);
-                    positions[i] = half2(cos(progress), sin(progress)) * distToCentre;
-                    disTo[i] = distance(centreUv, positions[i]);
-;
-                    bool isCloser =  disTo[i] <= lastDist;
-                    selection = i * int(isCloser) + selection * int(!isCloser);
-                    lastDist = disTo[selection];
-                }
-    
-                half2 sampleCoord = half2(selection,selection);
-                sampleCoord.x %= 16;
-                sampleCoord.y /= 16;
-                sampleCoord /= 16;
+                index = clamp(index, 0, amount-1);
+                float butts = float(index) / float(amount);
+
+                float2 sampleCoord;
+                sampleCoord.x = float(index % 16);
+                sampleCoord.y = float(index / 16);
+                sampleCoord /= 16.0;
+
+                sampleCoord.x = clamp(sampleCoord.x, 0.0, 15.0);
+                sampleCoord.y = clamp(sampleCoord.y, 0.0, 15.0);
 
                 paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord);
                 paintColour.a = 1.0;
-#else
+
+            #else
                 for (int i = 0; i < amount; ++i)
                 {
                     half2 sampleCoord = half2(i,i);
@@ -100,7 +111,7 @@ Shader "Custom/BallShader"
                     sampleCoord /= 16;
                     paintColour = paintColour * 0.5 + SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord) * 0.5;
                 }
-#endif
+            #endif
 
                 half4 colour = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * paintColour;
                 return colour;
