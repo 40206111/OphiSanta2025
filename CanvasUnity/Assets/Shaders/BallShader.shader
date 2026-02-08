@@ -103,7 +103,8 @@ Shader "Custom/BallShader"
                 paintColour.a = 1.0;
 
             #else
-                for (int i = 0; i < amount; ++i)
+                paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, half2(0,0));
+                for (int i = 1; i < amount; ++i)
                 {
                     half2 sampleCoord = half2(i,i);
                     sampleCoord.x %= 16;
