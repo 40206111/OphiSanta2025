@@ -17,11 +17,13 @@ public class GameOverComponent : MonoBehaviour
     {
         gameObject.SetActive(false);
         GameController.Instance.GameLost += PopulateScores;
+        GameController.Instance.RefreshHighScores += PopulateScores;
         GameController.Instance.Restart += OnRestart;
     }
     protected virtual void OnDestroy()
     {
         GameController.Instance.GameLost -= PopulateScores;
+        GameController.Instance.RefreshHighScores -= PopulateScores;
         GameController.Instance.Restart -= OnRestart;
     }
 
@@ -46,6 +48,21 @@ public class GameOverComponent : MonoBehaviour
             {
                 var newValue = valueEntries[i];
                 newValue.text = $"{scores[i]}";
+            }
+        }
+
+        if ( scores.Count < numberEntries.Count )
+        {
+            int currentAmount = numberEntries.Count - 1;
+            for (int i = currentAmount; i >= 0; i--)
+            {
+                if ( scores.Count - 1  <= i )
+                {
+                    GameObject.Destroy(numberEntries[i].gameObject);
+                    numberEntries.RemoveAt(i);
+                    GameObject.Destroy(valueEntries[i].gameObject);
+                    valueEntries.RemoveAt(i);
+                }
             }
         }
         gameObject.SetActive(true);

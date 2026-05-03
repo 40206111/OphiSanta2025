@@ -61,6 +61,7 @@ public class GameController
     public Action GameStarted;
     public Action GameLost;
     public Action OnClearCanvas;
+    public Action RefreshHighScores;
     public Action<bool> OnPauseChanged;
     public Action<Paintball> MaxBallPop;
 
@@ -169,5 +170,16 @@ public class GameController
     public void CauseMaxBallPop(Paintball ball)
     {
         MaxBallPop?.Invoke(ball);
+    }
+
+    public void DeleteHighScores()
+    {
+        for (int i = 0; i < HighScores.Count; i++)
+        {
+            PlayerPrefs.DeleteKey($"score_{i}");
+        }
+        HighScores.Clear();
+
+        RefreshHighScores?.Invoke();
     }
 }
