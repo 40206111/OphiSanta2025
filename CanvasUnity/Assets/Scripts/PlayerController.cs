@@ -23,12 +23,14 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         GameController.Instance.GameLost += OnLoss;
         GameController.Instance.GameStarted += OnStart;
+        GameController.Instance.Restart += OnGameRestart;
     }
 
     private void OnDestroy()
     {
         GameController.Instance.GameLost -= OnLoss;
         GameController.Instance.GameStarted -= OnStart;
+        GameController.Instance.Restart -= OnGameRestart;
     }
 
     public void OnLoss()
@@ -41,36 +43,48 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         GameRunning = true;
     }
 
+    public void OnGameRestart()
+    {
+        myBall = null;
+        _trackingBall = false;
+        GameRunning = false;
+        _pointerDown = false;
+
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (GameController.Instance.GameState == eGameState.PreStart)
+        switch ( GameController.Instance.GameState )
         {
-            GameController.Instance.ChangeState(eGameState.Running);
-            return;
-        }
-        if (GameController.Instance.GameState == eGameState.Lost)
-        {
-            GameController.Instance.ChangeState(eGameState.PreStart);
-            return;
-        }
-
-        if (Ready && myBall == null)
-        {
-            _pointerDown = true;
-            myBall = PaintballManager.Instance.GetNextBall();
-            StartCoroutine(TrackBallToPoint( GetWorldPoint(eventData.position)));
+            case eGameState.PreStart:
+                GameController.Instance.ChangeState(eGameState.Running);
+                break;
+            case eGameState.Lost:
+                GameController.Instance.ChangeState(eGameState.PreStart);
+                break;
+            case eGameState.Running:
+                if (Ready && myBall == null)
+                {
+                    _pointerDown = true;
+                    myBall = PaintballManager.Instance.GetNextBall();
+                    StartCoroutine(TrackBallToPoint(GetWorldPoint(eventData.position)));
+                }
+                break;
+            default:
+                break;
         }
     }
     IEnumerator<YieldInstruction> TrackBallToPoint( Vector3 point )
     {
         if (_trackingBall)
         {
-            yield return null;
+            yield break;
         }
         trackPoint = point;
         _trackingBall = true;
         point.z = myBall.transform.position.z;
-        while (myBall != null && (myBall.transform.position - trackPoint).sqrMagnitude > 0.01f)
+        while (GameRunning &&
+            (myBall != null && (myBall.transform.position - trackPoint).sqrMagnitude > 0.01f))
         {
             myBall.transform.position = Vector3.Lerp(myBall.transform.position, trackPoint, Time.deltaTime * SpeedToTop);
             yield return null;
@@ -125,6 +139,11 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         }
 
         myBall.transform.position = GetWorldPoint( eventData.position );
+    }
+
+    public void PauseGame_Ui()
+    {
+        GameController.Instance.TogglePause();
     }
 
     private Vector2 GetWorldPoint( Vector2 eventPos )

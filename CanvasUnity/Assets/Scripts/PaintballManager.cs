@@ -95,6 +95,13 @@ public class PaintballManager : MonoBehaviour
         {
             paintball.Value.ResetBall();
         }
+        activeBalls.Clear();
+
+        foreach (var ball in paintballList)
+        {
+            ball.ResetBall();
+            pooledBalls.Add(ball.gameObject.name, ball);
+        }
 
         pooledBalls.AddRange(activeBalls);
     }
@@ -105,6 +112,7 @@ public class PaintballManager : MonoBehaviour
         var scaledBounds = Vector3.Scale( bounds.extents, canvasSpriteRenderer.transform.localScale);
         var scaledSize = Vector3.Scale( bounds.size, canvasSpriteRenderer.transform.localScale);
         var zero = canvasSpriteRenderer.transform.position - scaledBounds; 
+        
         foreach (var ball in activeBalls)
         {
             ball.Value.Splat();

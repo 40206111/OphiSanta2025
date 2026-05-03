@@ -13,19 +13,19 @@ public class GameOverComponent : MonoBehaviour
     List<TextMeshProUGUI> numberEntries = new List<TextMeshProUGUI>();
     List<TextMeshProUGUI> valueEntries = new List<TextMeshProUGUI>();
 
-    private void Awake()
+    protected virtual void Awake()
     {
         gameObject.SetActive(false);
-        GameController.Instance.GameLost += OnLose;
+        GameController.Instance.GameLost += PopulateScores;
         GameController.Instance.Restart += OnRestart;
     }
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
-        GameController.Instance.GameLost -= OnLose;
+        GameController.Instance.GameLost -= PopulateScores;
         GameController.Instance.Restart -= OnRestart;
     }
 
-    public void OnLose()
+    public void PopulateScores()
     {
         var scores = GameController.Instance.HighScores;
         for (int i = 0; i < scores.Count; i++)

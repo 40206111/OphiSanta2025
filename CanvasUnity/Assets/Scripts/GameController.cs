@@ -8,6 +8,8 @@ public enum eGameState
     PreStart = 0,
     Running = 1,
     Lost = 2,
+    Pause = 3,
+    Reset = 4,
 }
 public class GameController
 {
@@ -33,11 +35,32 @@ public class GameController
 
     const int MaxScores = 10;
 
-    public eGameState GameState = eGameState.PreStart;
+    private eGameState _gameState = eGameState.PreStart;
+    public eGameState GameState
+    {
+        get { return _gameState; }
+        set
+        {
+            if ( _gameState == eGameState.Pause )
+            {
+                Time.timeScale = 1;
+                OnPauseChanged?.Invoke(false);
+            }
+            if ( value == eGameState.Pause)
+            {
+                Time.timeScale = 0;
+                OnPauseChanged?.Invoke(true);
+
+            }
+            _gameState = value;
+        }
+    }
+    public eGameState StoredGameState = eGameState.PreStart;
 
     public Action Restart;
     public Action GameStarted;
     public Action GameLost;
+    public Action<bool> OnPauseChanged;
     public Action<Paintball> MaxBallPop;
 
     public List<int> HighScores = new List<int>();
@@ -66,8 +89,27 @@ public class GameController
                 CheckScores();
                 GameLost?.Invoke();
                 break;
+            case eGameState.Reset:
+                CurrentScore = 0;
+                Restart?.Invoke();
+                GameState = eGameState.PreStart;
+                return;
+            case eGameState.Pause:
+                StoredGameState = GameState;
+                break;
         }
         GameState = newState;
+    }
+
+    public void TogglePause()
+    {
+        if (GameState == eGameState.Pause)
+        {
+            GameState = StoredGameState;
+            return;
+        }
+
+        ChangeState(eGameState.Pause);
     }
 
     private void CheckScores()
