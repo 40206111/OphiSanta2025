@@ -102,6 +102,7 @@ public class PaintballManager : MonoBehaviour
             ball.ResetBall();
             pooledBalls.Add(ball.gameObject.name, ball);
         }
+        paintballList.Clear();
 
         pooledBalls.AddRange(activeBalls);
     }
@@ -128,6 +129,7 @@ public class PaintballManager : MonoBehaviour
             ball.ResetBall();
             pooledBalls.Add(ball.gameObject.name, ball);
         }
+        paintballList.Clear();
         activeBalls.Clear();
     }
 
@@ -195,6 +197,7 @@ public class PaintballManager : MonoBehaviour
             GameController.Instance.Restart += OnRestart;
             GameController.Instance.GameLost += OnGameLost;
             GameController.Instance.MaxBallPop += BigBallSplat;
+            GameController.Instance.OnClearCanvas += ClearCanvas;
 
             canvasMat = canvasSpriteRenderer.material;
 
@@ -221,11 +224,31 @@ public class PaintballManager : MonoBehaviour
         }
     }
 
+    private void ClearCanvas()
+    {
+        var bounds = canvasSpriteRenderer.localBounds;
+        var scaledSize = Vector3.Scale(bounds.size, canvasSpriteRenderer.transform.localScale);
+        var increasedSize = scaledSize * canvasResScaleFactor;
+        var width = (int)(increasedSize.x);
+        var height = (int)(increasedSize.y);
+        var colours = System.Buffers.ArrayPool<Color>.Shared.Rent(width * height);
+        for (int i = 0; i < colours.Length; i++)
+        {
+            colours[i] = Color.white;
+        }
+        _canvasTexture.SetPixels(colours);
+
+        System.Buffers.ArrayPool<Color>.Shared.Return(colours);
+        _canvasTexture.Apply(true, false);
+        canvasMat.SetTexture("_PaintingTex", _canvasTexture);
+    }
+
     private void OnDestroy()
     {
         GameController.Instance.GameStarted -= SetUpBalls;
         GameController.Instance.Restart -= OnRestart;
         GameController.Instance.GameLost -= OnGameLost;
         GameController.Instance.MaxBallPop -= BigBallSplat;
+        GameController.Instance.OnClearCanvas += ClearCanvas;
     }
 }

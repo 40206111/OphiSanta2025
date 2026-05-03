@@ -26,6 +26,6 @@ public class MenuControllerComponent : MonoBehaviour
 
     public void ClearCanvas_Ui()
     {
-
+        GameController.Instance.ClearCanvas();
     }
 }

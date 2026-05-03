@@ -60,6 +60,7 @@ public class GameController
     public Action Restart;
     public Action GameStarted;
     public Action GameLost;
+    public Action OnClearCanvas;
     public Action<bool> OnPauseChanged;
     public Action<Paintball> MaxBallPop;
 
@@ -110,6 +111,11 @@ public class GameController
         }
 
         ChangeState(eGameState.Pause);
+    }
+
+    public void ClearCanvas()
+    {
+        OnClearCanvas?.Invoke();
     }
 
     private void CheckScores()
