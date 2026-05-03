@@ -541,6 +541,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WorldCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 1042537664025368898, guid: a038c4882f61a324abc87cfd4e3892e4, type: 3}
+      propertyPath: m_fontSize
+      value: 41.75
+      objectReference: {fileID: 0}
     - target: {fileID: 1526689447029093312, guid: a038c4882f61a324abc87cfd4e3892e4, type: 3}
       propertyPath: m_SizeDelta.x
       value: 237.53
@@ -676,6 +680,10 @@ PrefabInstance:
     - target: {fileID: 7216809951298548827, guid: a038c4882f61a324abc87cfd4e3892e4, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 73.852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7301559870323040561, guid: a038c4882f61a324abc87cfd4e3892e4, type: 3}
+      propertyPath: m_fontSize
+      value: 32.85
       objectReference: {fileID: 0}
     - target: {fileID: 7797846702541577104, guid: a038c4882f61a324abc87cfd4e3892e4, type: 3}
       propertyPath: m_Pivot.x
@@ -970,22 +978,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4369541251785890600, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
+    - target: {fileID: 7371737377186881570, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
       propertyPath: DropLine
       value: 
       objectReference: {fileID: 1736239557}
-    - target: {fileID: 4369541251785890600, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
+    - target: {fileID: 7371737377186881570, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
       propertyPath: LeftLine
       value: 
       objectReference: {fileID: 1496640212}
-    - target: {fileID: 4369541251785890600, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
+    - target: {fileID: 7371737377186881570, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
       propertyPath: RightLine
       value: 
       objectReference: {fileID: 1209849103}
-    - target: {fileID: 4369541251785890600, guid: 24443fc9768f04e47b444721b2db654b, type: 3}
-      propertyPath: SpeedToTop
-      value: 10
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
