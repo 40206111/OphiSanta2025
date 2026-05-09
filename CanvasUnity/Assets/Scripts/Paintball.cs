@@ -29,6 +29,7 @@ public class Paintball : MonoBehaviour
         {
             _tier = value;
             transform.localScale = Vector3.one * Mathf.Pow(scaleFactor, _tier);
+            _rigidbody.mass = Mathf.Pow(10, _tier / 2.0f);
             myMat.SetInteger("_Tier", _tier);
         }
     }
