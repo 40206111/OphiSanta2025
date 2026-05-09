@@ -671,6 +671,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -23.406
       objectReference: {fileID: 0}
+    - target: {fileID: 7514531180617761461, guid: 587250bcc5384bc4aa7dcc109fe560f0, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 519420031}
+    - target: {fileID: 7514531180617761461, guid: 587250bcc5384bc4aa7dcc109fe560f0, type: 3}
+      propertyPath: m_RenderMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7514531180617761461, guid: 587250bcc5384bc4aa7dcc109fe560f0, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1025952131
+      objectReference: {fileID: 0}
+    - target: {fileID: 7514531180617761461, guid: 587250bcc5384bc4aa7dcc109fe560f0, type: 3}
+      propertyPath: m_VertexColorAlwaysGammaSpace
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7514531180617761461, guid: 587250bcc5384bc4aa7dcc109fe560f0, type: 3}
+      propertyPath: m_UpdateRectTransformForStandalone
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7571374878381112090, guid: 587250bcc5384bc4aa7dcc109fe560f0, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
