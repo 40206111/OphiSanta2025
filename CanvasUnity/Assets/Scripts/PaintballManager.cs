@@ -294,7 +294,7 @@ public class PaintballManager : MonoBehaviour
                 }
                 else if (containsball2 && !containsball1)
                 {
-                    collisions.Add(nextCollision[2]);
+                    collisions.Add(nextCollision[1]);
                     nextCollision.Clear();
                 }
                 else if (containsball2 && containsball1)
