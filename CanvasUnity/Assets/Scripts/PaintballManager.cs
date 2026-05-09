@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Xsl;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ public class PaintballManager : MonoBehaviour
     private Texture2D _canvasTexture;
 
     private bool CheckingCollisions = false;
-    private Dictionary<string, List<Paintball>> Collisions = new Dictionary<string, List<Paintball>>();
+    private List<List<Paintball>> Collisions = new List<List<Paintball>>();
 
     public void AddToPool(Paintball paintball)
     {
@@ -248,11 +249,7 @@ public class PaintballManager : MonoBehaviour
 
     public void BallCollision( Paintball paintballOne, Paintball paintballTwo )
     {
-        if ( !Collisions.ContainsKey(paintballOne.name) )
-        {
-            Collisions[paintballOne.name] = new List<Paintball> { paintballOne };
-        }
-        Collisions[paintballOne.name].Add(paintballTwo);
+        Collisions.Add(new List<Paintball> { paintballOne, paintballTwo });
 
         StartCoroutine(DoCollisions());
     }
@@ -268,16 +265,52 @@ public class PaintballManager : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
 
-        foreach (var collision in Collisions.Values)
+        for (int i = 0; i < Collisions.Count; ++i)
         {
-            int count = collision.Count;
+            var collisions = Collisions[i];
+            int count = collisions.Count;
 
-            if (count < 2 )
+
+            if (collisions == null || count < 2)
             {
                 continue;
             }
 
-            var mainBall = collision[0];
+            for (int j = i + 1; j < Collisions.Count; ++j)
+            {
+                var nextCollision = Collisions[j];
+                int nextCount = nextCollision.Count;
+                if (nextCount != 2)
+                {
+                    Debug.LogWarning($"Something weird in collision counts count = {nextCount} but should be 2");
+                }
+
+                bool containsball1 = nextCount > 0 && collisions.Contains(nextCollision[0]);
+                bool containsball2 = nextCount > 1 && collisions.Contains(nextCollision[1]);
+                if (containsball1 && !containsball2)
+                {
+                    collisions.Add(nextCollision[0]);
+                    nextCollision.Clear();
+                }
+                else if (containsball2 && !containsball1)
+                {
+                    collisions.Add(nextCollision[2]);
+                    nextCollision.Clear();
+                }
+                else if (containsball2 && containsball1)
+                {
+                    nextCollision.Clear();
+                }
+            }
+
+            int mainIndex = 0;
+            var mainBall = collisions[mainIndex];
+
+            while (!mainBall.Fired && mainIndex < collisions.Count)
+            {
+                mainIndex++;
+                mainBall = collisions[mainIndex];
+            }
 
             if (!mainBall.Fired)
             {
@@ -289,8 +322,22 @@ public class PaintballManager : MonoBehaviour
             int tier = mainBall.Tier;
             int combined = 1;
             List<Texture2D> textures = new List<Texture2D>();
-            DoCollsions(ref pos, ref speed, ref combined, collision, tier, ref textures, mainBall.name);
-            collision.Clear();
+            for (int j = mainIndex + 1; j < count; j++)
+            {
+                var ball = collisions[j];
+
+                if (tier != ball.Tier || !ball.Fired)
+                {
+                    continue;
+                }
+                pos += ball.transform.position;
+                speed += ball.Velocity;
+                combined++;
+                textures.Add(ball.PaintTexture);
+                ball.RemoveBall();
+            }
+            
+            collisions.Clear();
 
             if ( combined < 2 )
             {
@@ -306,36 +353,6 @@ public class PaintballManager : MonoBehaviour
 
         Collisions.Clear();
         CheckingCollisions = false;
-    }
-
-    private void DoCollsions(ref Vector3 pos, ref Vector2 speed, ref int combined, List<Paintball> collisions, int tier, ref List<Texture2D> textures, string ignoreBallname)
-    {
-        int count = collisions.Count;
-
-        if (count < 2)
-        {
-            return;
-        }
-
-        for (int i = 1; i < count; i++)
-        {
-            var ball = collisions[i];
-
-            if (tier != ball.Tier || !ball.Fired || ball.name == ignoreBallname)
-            {
-                continue;
-            }
-            pos += ball.transform.position;
-            speed += ball.Velocity;
-            combined++;
-            if ( Collisions.ContainsKey(ball.name) )
-            {
-                DoCollsions(ref pos, ref speed, ref combined, Collisions[ball.name], tier, ref textures, ball.name);
-                Collisions[ball.name].Clear();
-            }
-            textures.Add(ball.PaintTexture);
-            ball.RemoveBall();
-        }
     }
 
     private void OnDestroy()

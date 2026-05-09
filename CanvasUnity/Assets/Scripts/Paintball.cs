@@ -20,7 +20,7 @@ public class Paintball : MonoBehaviour
 
     private bool _fired;
     public bool Fired => _fired;
-
+    
     private int _tier;
     public int Tier
     {
@@ -194,7 +194,6 @@ public class Paintball : MonoBehaviour
 
     public void GrowPaintball( Vector3 pos, Vector2 speed, int tierIncrease, List<Texture2D> textures )
     {
-
         for(int i = 0; i < textures.Count; i++)
         {
             int colourAmount = (int)Mathf.Pow(2, Tier);
@@ -221,7 +220,9 @@ public class Paintball : MonoBehaviour
         Tier += tierIncrease;
         _rigidbody.linearVelocity = speed;
         transform.position = pos;
-        GameController.Instance.CurrentScore += Tier * Tier * tierIncrease;
+        var scoreIncrease = Tier * Tier * tierIncrease;
+        GameController.Instance.CurrentScore += scoreIncrease;
+        Debug.Log($"{name}: Ball Tier increased by {tierIncrease} is now tier {Tier} giving score {scoreIncrease}");
 
         if (Tier == 8)
         {
