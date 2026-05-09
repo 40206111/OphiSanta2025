@@ -41,8 +41,6 @@ public class Paintball : MonoBehaviour
     private Material myMat;
 
     public Texture2D PaintTexture { get; private set; }
-    private const float _dimValue = 0.1f;
-    private Color _dimColour = new Color(_dimValue, _dimValue, _dimValue, 0.0f);
 
     public Vector2 Velocity => _rigidbody == null ? Vector2.zero : _rigidbody.linearVelocity;
 
@@ -64,19 +62,12 @@ public class Paintball : MonoBehaviour
 
         var amount = Mathf.Pow(2, Tier);
 
-        var lastCol = Color.white;
         for (int i = 0; i < amount; i++)
         {
             var rand = Random.Range(0, pallet.Count);
             var newCol = pallet[rand];
 
-            if ( lastCol == newCol )
-            {
-                newCol -= _dimColour;
-            }
             PaintTexture.SetPixel(i, 0, newCol);
-
-            lastCol = newCol;
         }
         PaintTexture.Apply(true, false);
         myMat.SetTexture("_Colours", PaintTexture);
@@ -195,22 +186,17 @@ public class Paintball : MonoBehaviour
 
     public void GrowPaintball( Vector3 pos, Vector2 speed, int tierIncrease, List<Texture2D> textures )
     {
+        int colourAmount = (int)Mathf.Pow(2, Tier);
         for(int i = 0; i < textures.Count; i++)
         {
-            int colourAmount = (int)Mathf.Pow(2, Tier);
             var colours = textures[i].GetPixels();
 
-            var lastCol = Color.white;
             for (int j = 0; j < colourAmount; j++)
             {
                 int colourIndex = colourAmount + j;
                 int x = colourIndex % 16;
                 int y = colourIndex / 16;
                 var newCol = colours[j];
-                if (lastCol == newCol)
-                {
-                    newCol -= _dimColour;
-                }
                 PaintTexture.SetPixel(x, y, newCol);
             }
         }

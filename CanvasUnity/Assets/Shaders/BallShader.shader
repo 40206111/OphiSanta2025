@@ -99,6 +99,23 @@ Shader "Custom/BallShader"
                 sampleCoord.y = clamp(sampleCoord.y, 0.0, 15.0);
 
                 paintColour = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, sampleCoord);
+                
+                float2 nextCoord;
+                uint nextIndex = (index + 1) % amount;
+                nextCoord.x = float(nextIndex % 16);
+                nextCoord.y = float(nextIndex / 16);
+                nextCoord /= 16.0;
+
+                nextCoord.x = clamp(nextCoord.x, 0.0, 15.0);
+                nextCoord.y = clamp(nextCoord.y, 0.0, 15.0);
+                float4 nextCol = SAMPLE_TEXTURE2D(_Colours, sampler_Colours, nextCoord);
+
+                float4 dimCol = float4(0.1, 0.1, 0.1, 0.0);
+
+                float shouldDim = (nextCol == paintColour) * (nextIndex > index);
+
+                dimCol *= min(shouldDim, 1.0);
+                paintColour -= dimCol;
                 paintColour.a = 1.0;
 
             #else
