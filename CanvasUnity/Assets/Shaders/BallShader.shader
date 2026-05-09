@@ -86,10 +86,9 @@ Shader "Custom/BallShader"
                 angle += _Offset * (1.0 - pow(1.0 - dist, 5.0));
                 angle %= 1.0;
     
-                int index = floor(angle * float(amount));
+                uint index = floor(angle * float(amount));
 
                 index = clamp(index, 0, amount-1);
-                float butts = float(index) / float(amount);
 
                 float2 sampleCoord;
                 sampleCoord.x = float(index % 16);
