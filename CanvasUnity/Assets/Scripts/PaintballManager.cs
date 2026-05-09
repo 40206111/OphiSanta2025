@@ -22,6 +22,9 @@ public class PaintballManager : MonoBehaviour
 
     private Texture2D _canvasTexture;
 
+    private bool CheckingCollisions = false;
+    private Dictionary<string, List<Paintball>> Collisions = new Dictionary<string, List<Paintball>>();
+
     public void AddToPool(Paintball paintball)
     {
         activeBalls.Remove(paintball.gameObject.name);
@@ -241,6 +244,98 @@ public class PaintballManager : MonoBehaviour
         System.Buffers.ArrayPool<Color>.Shared.Return(colours);
         _canvasTexture.Apply(true, false);
         canvasMat.SetTexture("_PaintingTex", _canvasTexture);
+    }
+
+    public void BallCollision( Paintball paintballOne, Paintball paintballTwo )
+    {
+        if ( !Collisions.ContainsKey(paintballOne.name) )
+        {
+            Collisions[paintballOne.name] = new List<Paintball> { paintballOne };
+        }
+        Collisions[paintballOne.name].Add(paintballTwo);
+
+        StartCoroutine(DoCollisions());
+    }
+
+    IEnumerator<YieldInstruction> DoCollisions()
+    {
+        if ( CheckingCollisions )
+        {
+            yield break;
+        }
+
+        CheckingCollisions = true;
+
+        yield return new WaitForEndOfFrame();
+
+        foreach (var collision in Collisions.Values)
+        {
+            int count = collision.Count;
+
+            if (count < 2 )
+            {
+                continue;
+            }
+
+            var mainBall = collision[0];
+
+            if (!mainBall.Fired)
+            {
+                continue;
+            }
+
+            Vector3 pos = mainBall.transform.position;
+            Vector2 speed = mainBall.Velocity;
+            int tier = mainBall.Tier;
+            int combined = 1;
+            List<Texture2D> textures = new List<Texture2D>();
+            DoCollsions(ref pos, ref speed, ref combined, collision, tier, ref textures, mainBall.name);
+            collision.Clear();
+
+            if ( combined < 2 )
+            {
+                continue;
+            }
+
+            pos /= combined;
+            speed /= combined;
+            mainBall.transform.position = pos;
+            int upgrade = Mathf.CeilToInt(combined / 2.0f);
+            mainBall.GrowPaintball(pos, speed, upgrade, textures);
+        }
+
+        Collisions.Clear();
+        CheckingCollisions = false;
+    }
+
+    private void DoCollsions(ref Vector3 pos, ref Vector2 speed, ref int combined, List<Paintball> collisions, int tier, ref List<Texture2D> textures, string ignoreBallname)
+    {
+        int count = collisions.Count;
+
+        if (count < 2)
+        {
+            return;
+        }
+
+        for (int i = 1; i < count; i++)
+        {
+            var ball = collisions[i];
+
+            if (tier != ball.Tier || !ball.Fired || ball.name == ignoreBallname)
+            {
+                continue;
+            }
+            pos += ball.transform.position;
+            speed += ball.Velocity;
+            combined++;
+            if ( Collisions.ContainsKey(ball.name) )
+            {
+                DoCollsions(ref pos, ref speed, ref combined, Collisions[ball.name], tier, ref textures, ball.name);
+                Collisions[ball.name].Clear();
+            }
+            textures.Add(ball.PaintTexture);
+            ball.RemoveBall();
+        }
     }
 
     private void OnDestroy()

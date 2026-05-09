@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Paintball : MonoBehaviour
@@ -15,10 +16,10 @@ public class Paintball : MonoBehaviour
     private CircleCollider2D _collider;
     private SpriteRenderer _spriteRenderer;
 
-    [HideInInspector] public bool Consumed;
     [HideInInspector] public Transform Target;
 
-    bool _fired;
+    private bool _fired;
+    public bool Fired => _fired;
 
     private int _tier;
     public int Tier
@@ -41,6 +42,8 @@ public class Paintball : MonoBehaviour
     public Texture2D PaintTexture { get; private set; }
     private const float _dimValue = 0.1f;
     private Color _dimColour = new Color(_dimValue, _dimValue, _dimValue, 0.0f);
+
+    public Vector2 Velocity => _rigidbody == null ? Vector2.zero : _rigidbody.linearVelocity;
 
     private void Awake()
     {
@@ -138,7 +141,6 @@ public class Paintball : MonoBehaviour
     {
         gameObject.SetActive(false);
         _fired = false;
-        Consumed = false;
         _rigidbody.simulated = false;
         _rigidbody.angularVelocity = 0;
         _rigidbody.linearVelocity = Vector2.zero;
@@ -168,23 +170,19 @@ public class Paintball : MonoBehaviour
 
     private void Collide(Collision2D collision)
     {
-        if (!_fired || Consumed)
+        if (!_fired)
         {
             return;
         }
 
         if (collision.gameObject.TryGetComponent<Paintball>(out var paintball))
         {
-            if (paintball.Consumed)
-            {
-                return;
-            }
             if (paintball.Tier != Tier)
             {
                 return;
             }
 
-            HitPaintball(paintball);
+            PaintballManager.Instance.BallCollision(this, paintball);
         }
     }
 
@@ -194,47 +192,48 @@ public class Paintball : MonoBehaviour
         RemoveBall();
     }
 
-    private void HitPaintball( Paintball paintball )
+    public void GrowPaintball( Vector3 pos, Vector2 speed, int tierIncrease, List<Texture2D> textures )
     {
-        paintball.Consumed = true;
 
-        paintball.RemoveBall();
-
-        int colourAmount = (int)Mathf.Pow(2, Tier);
-        var colours = paintball.PaintTexture.GetPixels();
-
-        var lastCol = Color.white;
-        for (int i = 0; i < colourAmount; i++)
+        for(int i = 0; i < textures.Count; i++)
         {
-            int colourIndex = colourAmount + i;
-            int x = colourIndex % 16;
-            int y = colourIndex / 16;
-            var newCol = colours[i];
-            if (lastCol == newCol)
+            int colourAmount = (int)Mathf.Pow(2, Tier);
+            var colours = textures[i].GetPixels();
+
+            var lastCol = Color.white;
+            for (int j = 0; j < colourAmount; j++)
             {
-                newCol -= _dimColour;
+                int colourIndex = colourAmount + j;
+                int x = colourIndex % 16;
+                int y = colourIndex / 16;
+                var newCol = colours[j];
+                if (lastCol == newCol)
+                {
+                    newCol -= _dimColour;
+                }
+                PaintTexture.SetPixel(x, y, newCol);
             }
-            PaintTexture.SetPixel(x, y, newCol);
         }
 
         PaintTexture.Apply(true, false);
         myMat.SetTexture("_Colours", PaintTexture);
 
-        Tier++;
-        GameController.Instance.CurrentScore += Tier * Tier;
+        Tier += tierIncrease;
+        _rigidbody.linearVelocity = speed;
+        transform.position = pos;
+        GameController.Instance.CurrentScore += Tier * Tier * tierIncrease;
 
         if (Tier == 8)
         {
             GameController.Instance.MaxBallPop(this);
             StartCoroutine(RemoveBallAfterWait());
-            StartCoroutine(paintball.RemoveBallAfterWait());
             return;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!_fired || Consumed)
+        if (!_fired)
         {
             return;
         }
